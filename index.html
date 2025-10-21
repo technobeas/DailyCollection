@@ -621,6 +621,13 @@
         closeBtn.addEventListener("click", onCloseClick);
         document.addEventListener("keydown", keyListener);
       }
+
+      let userEditedDate = false;
+
+      document.getElementById("customDate").addEventListener("input", () => {
+        userEditedDate = true;
+      });
+
       window.onload = () => {
         openDB();
         setDefaultFilterDates();
@@ -641,6 +648,7 @@
       }
 
       function updateCustomDateTime() {
+        if (userEditedDate) return;
         const now = new Date();
         const offsetMs = now.getTimezoneOffset() * 60000;
         const localTime = new Date(now.getTime() - offsetMs);
