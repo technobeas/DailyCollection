@@ -37,6 +37,10 @@
         }
       }
 
+      html {
+        transition: background-color 0.3s ease, color 0.3s ease;
+      }
+
       * {
         box-sizing: border-box;
       }
@@ -84,7 +88,8 @@
         font-size: 1.05rem;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
         outline-offset: 2px;
-        background-color: #fff;
+        background-color: var(--card-bg);
+        color: var(--text);
       }
 
       input:focus {
@@ -174,8 +179,7 @@
         margin-top: 2rem;
         padding-top: 1rem;
         border-top: 1px solid var(--border);
-
-        max-height: 400px; /* adjust as needed */
+        max-height: 400px;
         overflow-y: auto;
       }
 
@@ -244,12 +248,23 @@
         color: var(--primary);
       }
 
-      .entry-actions button.edit:hover {
-        background-color: #cfe2ff;
-      }
-
       .entry-actions button.delete {
         color: var(--danger);
+      }
+
+      /* Dark mode specific hover adjustments */
+      @media (prefers-color-scheme: dark) {
+        .entry-actions button.edit:hover {
+          background-color: rgba(102, 178, 255, 0.15);
+        }
+
+        .entry-actions button.delete:hover {
+          background-color: rgba(255, 107, 107, 0.15);
+        }
+      }
+
+      .entry-actions button.edit:hover {
+        background-color: #cfe2ff;
       }
 
       .entry-actions button.delete:hover {
@@ -294,117 +309,14 @@
       }
 
       .modal-content {
-        background: white;
+        background: var(--card-bg);
         padding: 2rem;
         border-radius: var(--radius);
         max-width: 400px;
         width: 90%;
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
-        text-align: center;
-      }
-
-      .modal-content h2 {
-        margin-top: 0;
-        margin-bottom: 0.5rem;
-        color: var(--primary);
-      }
-
-      .modal-content p {
-        margin: 1rem 0 1.5rem 0;
+        transition: all var(--transition);
         color: var(--text);
-        font-size: 1.05rem;
-      }
-
-      #modalAmountInput {
-        display: none;
-        width: 100%;
-        padding: 0.75rem 1rem;
-        margin-bottom: 1rem;
-        border-radius: var(--radius);
-        border: 1.5px solid var(--border);
-        font-size: 1.05rem;
-      }
-
-      #modalCloseBtn {
-        background-color: var(--primary);
-        color: white;
-        border: none;
-        padding: 0.65rem 1.4rem;
-        font-size: 1.05rem;
-        border-radius: var(--radius);
-        cursor: pointer;
-        user-select: none;
-        box-shadow: 0 3px 7px rgba(13, 110, 253, 0.35);
-        transition: background-color var(--transition);
-      }
-
-      #modalCloseBtn:hover {
-        background-color: var(--primary-dark);
-      }
-
-      @media (max-width: 480px) {
-        .buttons {
-          flex-direction: column;
-        }
-
-        .btn {
-          width: 100%;
-          flex: none;
-        }
-
-        .filters input[type="date"] {
-          flex-basis: 100%;
-        }
-
-        .entry-details {
-          min-width: 100%;
-          margin-bottom: 0.5rem;
-        }
-
-        .entry-actions {
-          flex-grow: 0;
-          justify-content: flex-start;
-        }
-        input[type="datetime-local"] {
-          width: 88%;
-        }
-      }
-
-      @media (max-width: 360px) {
-        body {
-          padding: 1rem 0.5rem;
-        }
-
-        .container {
-          padding: 1rem 1rem;
-        }
-
-        h1 {
-          font-size: 1.8rem;
-        }
-
-        .btn {
-          font-size: 1rem;
-          padding: 0.65rem 0;
-        }
-
-        .filters label {
-          font-size: 0.9rem;
-        }
-
-        .summary {
-          font-size: 0.9rem;
-        }
-
-        .modal-content {
-          padding: 1.25rem 1rem;
-          max-width: 320px;
-        }
-
-        button.export {
-          font-size: 1rem;
-          padding: 0.7rem 0;
-        }
       }
     </style>
   </head>
