@@ -732,10 +732,15 @@
         setInterval(updateCustomDateTime, 1000);
       };
       function setDefaultFilterDates() {
-        const today = new Date().toISOString().split("T")[0];
-        document.getElementById("fromDate").value = today;
-        document.getElementById("toDate").value = today;
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const localDate = `${year}-${month}-${day}`;
+        document.getElementById("fromDate").value = localDate;
+        document.getElementById("toDate").value = localDate;
       }
+
       function setDefaultDateTime() {
         const now = new Date();
         const offsetMs = now.getTimezoneOffset() * 60000;
