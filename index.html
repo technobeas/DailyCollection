@@ -1112,13 +1112,21 @@
           showModal("No data to export.");
           return;
         }
+
         let csv = "Date,Type,Amount\n";
         data.forEach((entry) => {
           const date = new Date(entry.date).toLocaleString();
           csv += `"${date}",${entry.type},${entry.amount}\n`;
         });
-        const today = new Date().toISOString().split("T")[0];
-        const filename = `collection_${today}.csv`;
+
+        // Get the selected date range
+        const fromDate = document.getElementById("fromDate").value || "start";
+        const toDate = document.getElementById("toDate").value || "end";
+
+        // Construct filename using date range
+        const filename = `collection_${fromDate}_to_${toDate}.csv`;
+
+        // Create and trigger CSV download
         const blob = new Blob([csv], { type: "text/csv" });
         const url = URL.createObjectURL(blob);
         const a = document.createElement("a");
