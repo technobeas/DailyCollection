@@ -697,17 +697,8 @@
             type = type.trim();
             amountStr = amountStr.trim();
 
-            // Convert common date formats to ISO (YYYY-MM-DD)
-            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
-              const [d, m, y] = dateStr.split("/");
-              dateStr = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-            } else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
-              const [d, m, y] = dateStr.split("-");
-              dateStr = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-            }
-
+            // Parse amount
             const amount = parseFloat(amountStr);
-
             if (
               !dateStr ||
               (type !== "Cash" && type !== "Online") ||
@@ -718,7 +709,49 @@
               return;
             }
 
-            const date = new Date(dateStr);
+            // Convert to ISO datetime
+            let isoDate = "";
+
+            if (
+              /^\d{2}\/\d{2}\/\d{4},\s*\d{1,2}:\d{2}:\d{2}\s*(AM|PM)$/i.test(
+                dateStr
+              )
+            ) {
+              // Format: 21/10/2025, 2:38:00 PM
+              const [datePart, timePart] = dateStr
+                .split(",")
+                .map((s) => s.trim());
+              const [d, m, y] = datePart.split("/");
+              let [time, modifier] = timePart.split(" ");
+              let [hour, minute, second] = time.split(":").map(Number);
+
+              if (modifier.toUpperCase() === "PM" && hour !== 12) hour += 12;
+              if (modifier.toUpperCase() === "AM" && hour === 12) hour = 0;
+
+              const hh = String(hour).padStart(2, "0");
+              const mm = String(minute).padStart(2, "0");
+              const ss = String(second).padStart(2, "0");
+
+              isoDate = `${y}-${m.padStart(2, "0")}-${d.padStart(
+                2,
+                "0"
+              )}T${hh}:${mm}:${ss}`;
+            } else if (/^\d{2}[\/-]\d{2}[\/-]\d{4}$/.test(dateStr)) {
+              // Format: DD/MM/YYYY or DD-MM-YYYY
+              const [d, m, y] = dateStr.split(/[\/-]/);
+              isoDate = `${y}-${m.padStart(2, "0")}-${d.padStart(
+                2,
+                "0"
+              )}T00:00:00`;
+            } else if (/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) {
+              // Format: YYYY-MM-DD
+              isoDate = `${dateStr}T00:00:00`;
+            } else {
+              showModal(`Invalid date format on line ${i + 1}`);
+              return;
+            }
+
+            const date = new Date(isoDate);
             if (isNaN(date.getTime())) {
               showModal(`Invalid date on line ${i + 1}`);
               return;
