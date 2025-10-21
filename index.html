@@ -519,7 +519,9 @@
       }
       function setDefaultDateTime() {
         const now = new Date();
-        const localISOTime = now.toISOString().slice(0, 16);
+        const offsetMs = now.getTimezoneOffset() * 60000;
+        const localTime = new Date(now.getTime() - offsetMs);
+        const localISOTime = localTime.toISOString().slice(0, 16);
         document.getElementById("customDate").value = localISOTime;
       }
       function openDB() {
@@ -655,14 +657,18 @@
       function importData() {
         const fileInput = document.getElementById("importFile");
         const file = fileInput.files[0];
+
         if (!file) {
           showModal("Please select a CSV file to import.");
           return;
         }
+
         const reader = new FileReader();
+
         reader.onload = function (e) {
-          const text = e.target.result;
+          let text = e.target.result.replace(/^\uFEFF/, ""); // Remove BOM if present
           const lines = text.trim().split("\n");
+
           if (
             !lines[0].toLowerCase().includes("date") ||
             !lines[0].toLowerCase().includes("type") ||
@@ -673,20 +679,35 @@
             );
             return;
           }
+
           const entriesToAdd = [];
+
           for (let i = 1; i < lines.length; i++) {
             const line = lines[i].trim();
             if (!line) continue;
+
             const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
             if (!cols || cols.length < 3) {
               showModal(`Invalid data format on line ${i + 1}`);
               return;
             }
+
             let [dateStr, type, amountStr] = cols;
-            dateStr = dateStr.replace(/^"|"$/g, "");
+            dateStr = dateStr.replace(/^"|"$/g, "").trim();
             type = type.trim();
             amountStr = amountStr.trim();
+
+            // Convert common date formats to ISO (YYYY-MM-DD)
+            if (/^\d{2}\/\d{2}\/\d{4}$/.test(dateStr)) {
+              const [d, m, y] = dateStr.split("/");
+              dateStr = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+            } else if (/^\d{2}-\d{2}-\d{4}$/.test(dateStr)) {
+              const [d, m, y] = dateStr.split("-");
+              dateStr = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+            }
+
             const amount = parseFloat(amountStr);
+
             if (
               !dateStr ||
               (type !== "Cash" && type !== "Online") ||
@@ -696,31 +717,43 @@
               showModal(`Invalid data on line ${i + 1}`);
               return;
             }
-            let date = new Date(dateStr);
+
+            const date = new Date(dateStr);
             if (isNaN(date.getTime())) {
               showModal(`Invalid date on line ${i + 1}`);
               return;
             }
-            date = date.toISOString();
-            entriesToAdd.push({ date, type, amount });
+
+            entriesToAdd.push({
+              date: date.toISOString(),
+              type,
+              amount,
+            });
           }
+
           const tx = db.transaction(["entries"], "readwrite");
           const store = tx.objectStore("entries");
+
           entriesToAdd.forEach((entry) => store.add(entry));
+
           tx.oncomplete = () => {
             showModal(`Imported ${entriesToAdd.length} entries successfully.`);
             renderHistory();
             fileInput.value = "";
           };
+
           tx.onerror = () => {
             showModal("Error importing data.");
           };
         };
+
         reader.onerror = () => {
           showModal("Error reading file.");
         };
+
         reader.readAsText(file);
       }
+
       function exportData() {
         const data = window.filteredEntries || [];
         if (data.length === 0) {
