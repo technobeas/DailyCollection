@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Daily Collection Tracker</title>
+    <style>
+      :root {
+        --bg: #f5f7fa;
+        --text: #212529;
+        --primary: #0d6efd;
+        --primary-dark: #0847c1;
+        --border: #dee2e6;
+        --card-bg: #ffffff;
+        --success: #198754;
+        --danger: #dc3545;
+        --gray-dark: #495057;
+        --gray-light: #adb5bd;
+        --shadow: rgba(0, 0, 0, 0.08);
+        --radius: 10px;
+        --transition: 0.25s ease;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem 1rem;
+        min-height: 100vh;
+      }
+      h1 {
+        margin-bottom: 1.5rem;
+        font-size: 2.2rem;
+        font-weight: 700;
+        text-align: center;
+        color: var(--primary);
+        user-select: none;
+      }
+      .container {
+        width: 100%;
+        max-width: 540px;
+        background: var(--card-bg);
+        padding: 2rem;
+        border-radius: var(--radius);
+        box-shadow: 0 6px 15px var(--shadow);
+        transition: var(--transition);
+      }
+      input[type="number"],
+      input[type="date"],
+      input[type="datetime-local"],
+      input[type="file"] {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1.25rem;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        font-size: 1.05rem;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        outline-offset: 2px;
+      }
+      input:focus {
+        border-color: var(--primary);
+        outline: none;
+        box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
+      }
+      .buttons {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.75rem;
+      }
+      .btn {
+        flex: 1;
+        padding: 0.75rem 0;
+        border: none;
+        border-radius: var(--radius);
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        color: white;
+        box-shadow: 0 3px 7px var(--shadow);
+        transition: background-color var(--transition),
+          box-shadow var(--transition), transform 0.1s ease;
+        user-select: none;
+      }
+      .btn:active {
+        transform: translateY(1px);
+      }
+      .btn.cash {
+        background-color: var(--success);
+      }
+      .btn.cash:hover {
+        background-color: #157347;
+        box-shadow: 0 6px 15px rgba(21, 115, 71, 0.3);
+      }
+      .btn.online {
+        background-color: var(--primary);
+      }
+      .btn.online:hover {
+        background-color: var(--primary-dark);
+        box-shadow: 0 6px 15px rgba(8, 71, 193, 0.35);
+      }
+      .filters {
+        margin-top: 1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: center;
+        font-weight: 600;
+        color: var(--gray-dark);
+        user-select: none;
+      }
+      .filters label {
+        flex-basis: 100%;
+        margin-bottom: 0.3rem;
+        font-size: 1rem;
+      }
+      .filters input[type="date"] {
+        flex: 1 1 45%;
+      }
+      .summary {
+        margin-top: 2rem;
+        font-size: 1.05rem;
+        line-height: 1.6;
+        color: var(--gray-dark);
+        user-select: none;
+      }
+      .summary p {
+        margin: 0.25rem 0;
+      }
+      .history {
+        margin-top: 2rem;
+      }
+      .history h3 {
+        font-weight: 700;
+        margin-bottom: 1rem;
+        color: var(--primary);
+        user-select: none;
+      }
+      .history-entry {
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius);
+        padding: 1rem 1.25rem;
+        margin-bottom: 0.85rem;
+        background: var(--card-bg);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: box-shadow 0.2s ease, transform 0.15s ease;
+      }
+      .history-entry:hover {
+        box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
+        transform: translateY(-1px);
+      }
+      .entry-details {
+        flex-grow: 1;
+        user-select: text;
+      }
+      .entry-details > div {
+        font-weight: 600;
+        font-size: 1.1rem;
+        color: var(--text);
+      }
+      .entry-details small {
+        color: var(--gray-light);
+        font-size: 0.85rem;
+      }
+      .entry-actions button {
+        margin-left: 0.6rem;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        font-size: 1.2rem;
+        padding: 0.3rem;
+        border-radius: 6px;
+        transition: background-color var(--transition);
+        user-select: none;
+      }
+      .entry-actions button.edit {
+        color: var(--primary);
+      }
+      .entry-actions button.edit:hover {
+        background-color: #cfe2ff;
+      }
+      .entry-actions button.delete {
+        color: var(--danger);
+      }
+      .entry-actions button.delete:hover {
+        background-color: #f8d7da;
+      }
+      button.export {
+        background: #6c757d;
+        margin-top: 2rem;
+        width: 100%;
+        padding: 0.85rem 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        border-radius: var(--radius);
+        box-shadow: 0 3px 8px rgba(108, 117, 125, 0.4);
+        transition: background-color var(--transition),
+          box-shadow var(--transition);
+        color: white;
+      }
+      button.export:hover {
+        background-color: #5a6268;
+        box-shadow: 0 6px 15px rgba(90, 98, 104, 0.6);
+      }
+      .modal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(33, 37, 41, 0.65);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+        transition: opacity 0.3s ease;
+      }
+      .modal.hidden {
+        display: none;
+      }
+      .modal-content {
+        background: white;
+        padding: 2rem;
+        border-radius: var(--radius);
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        text-align: center;
+      }
+      .modal-content h2 {
+        margin-top: 0;
+        margin-bottom: 0.5rem;
+        color: var(--primary);
+      }
+      .modal-content p {
+        margin: 1rem 0 1.5rem 0;
+        color: var(--text);
+        font-size: 1.05rem;
+      }
+      #modalAmountInput {
+        display: none;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        margin-bottom: 1rem;
+        border-radius: var(--radius);
+        border: 1.5px solid var(--border);
+        font-size: 1.05rem;
+      }
+      #modalCloseBtn {
+        background-color: var(--primary);
+        color: white;
+        border: none;
+        padding: 0.65rem 1.4rem;
+        font-size: 1.05rem;
+        border-radius: var(--radius);
+        cursor: pointer;
+        user-select: none;
+        box-shadow: 0 3px 7px rgba(13, 110, 253, 0.35);
+        transition: background-color var(--transition);
+      }
+      #modalCloseBtn:hover {
+        background-color: var(--primary-dark);
+      }
+      @media (max-width: 480px) {
+        .buttons {
+          flex-direction: column;
+        }
+        .btn {
+          width: 100%;
+          flex: none;
+        }
+        .filters input[type="date"] {
+          flex-basis: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Daily Collection Tracker</h1>
+    <div class="container">
+      <input type="datetime-local" id="customDate" />
+      <input type="number" id="amount" placeholder="Enter amount (₹)" />
+      <div class="buttons">
+        <button class="btn cash" onclick="addEntry('Cash')">Add Cash</button>
+        <button class="btn online" onclick="addEntry('Online')">
+          Add Online
+        </button>
+      </div>
+      <div class="filters">
+        <label>Filter by Date Range:</label>
+        <input type="date" id="fromDate" onchange="renderHistory()" />
+        <input type="date" id="toDate" onchange="renderHistory()" />
+      </div>
+      <div class="summary" id="summary"></div>
+      <div class="history">
+        <h3>History</h3>
+        <div id="historyList"></div>
+      </div>
+      <button class="btn export" onclick="exportData()">Export as CSV</button>
+      <label
+        for="importFile"
+        style="
+          display: block;
+          margin-top: 1.5rem;
+          font-weight: 600;
+          user-select: none;
+        "
+        >Import from CSV:</label
+      >
+      <input type="file" id="importFile" accept=".csv" />
+      <button
+        class="btn export"
+        style="margin-top: 0.5rem"
+        onclick="importData()"
+      >
+        Import CSV
+      </button>
+    </div>
+    <div
+      id="modal"
+      class="modal hidden"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+      aria-describedby="modalMessage"
+    >
+      <div class="modal-content">
+        <h2 id="modalTitle">Message</h2>
+        <p id="modalMessage"></p>
+        <input
+          type="number"
+          id="modalAmountInput"
+          placeholder="Enter new amount"
+          min="0.01"
+          step="0.01"
+        />
+        <button id="modalCloseBtn" aria-label="Close modal">OK</button>
+      </div>
+    </div>
+    <script>
+      const DB_NAME = "DailyCollectionDB";
+      const DB_VERSION = 1;
+      let db;
+      let isEditing = false;
+      let editingId = null;
+
+      function showModal(message, title = "Notice", options = {}) {
+        const modal = document.getElementById("modal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalMessage = document.getElementById("modalMessage");
+        const modalAmountInput = document.getElementById("modalAmountInput");
+        const closeBtn = document.getElementById("modalCloseBtn");
+
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+
+        if (options.edit) {
+          modalAmountInput.style.display = "block";
+          modalAmountInput.value = options.amount || "";
+          isEditing = true;
+          editingId = options.id;
+          setTimeout(() => modalAmountInput.focus(), 100);
+        } else {
+          modalAmountInput.style.display = "none";
+          isEditing = false;
+          editingId = null;
+        }
+
+        modal.classList.remove("hidden");
+
+        function closeModal() {
+          modal.classList.add("hidden");
+          closeBtn.removeEventListener("click", onCloseClick);
+          document.removeEventListener("keydown", keyListener);
+        }
+
+        function onCloseClick() {
+          if (isEditing) {
+            const newAmount = parseFloat(modalAmountInput.value);
+            if (isNaN(newAmount) || newAmount <= 0) {
+              alert("Please enter a valid amount.");
+              modalAmountInput.focus();
+              return;
+            }
+            updateEntry(editingId, newAmount);
+          }
+          closeModal();
+        }
+
+        function keyListener(e) {
+          if (e.key === "Escape") {
+            e.preventDefault();
+            closeModal();
+          } else if (
+            (e.key === "Enter" || e.key === " ") &&
+            (document.activeElement === closeBtn ||
+              document.activeElement === modalAmountInput)
+          ) {
+            e.preventDefault();
+            onCloseClick();
+          }
+        }
+
+        closeBtn.addEventListener("click", onCloseClick);
+        document.addEventListener("keydown", keyListener);
+      }
+
+      window.onload = () => {
+        openDB();
+        setDefaultFilterDates();
+        setDefaultDateTime();
+      };
+
+      function setDefaultFilterDates() {
+        const today = new Date().toISOString().split("T")[0];
+        document.getElementById("fromDate").value = today;
+        document.getElementById("toDate").value = today;
+      }
+
+      function setDefaultDateTime() {
+        const now = new Date();
+        const localISOTime = now.toISOString().slice(0, 16);
+        document.getElementById("customDate").value = localISOTime;
+      }
+
+      function openDB() {
+        const request = indexedDB.open(DB_NAME, DB_VERSION);
+        request.onerror = (e) => showModal("Database error");
+        request.onsuccess = (e) => {
+          db = e.target.result;
+          renderHistory();
+        };
+        request.onupgradeneeded = (e) => {
+          db = e.target.result;
+          if (!db.objectStoreNames.contains("entries")) {
+            db.createObjectStore("entries", {
+              keyPath: "id",
+              autoIncrement: true,
+            });
+          }
+        };
+      }
+
+      function addEntry(type) {
+        const amount = parseFloat(document.getElementById("amount").value);
+        const customDate = document.getElementById("customDate").value;
+
+        if (isNaN(amount) || amount <= 0)
+          return showModal("Enter a valid amount");
+
+        const date = customDate
+          ? new Date(customDate).toISOString()
+          : new Date().toISOString();
+
+        const entry = { amount, type, date };
+
+        const tx = db.transaction(["entries"], "readwrite");
+        const store = tx.objectStore("entries");
+        store.add(entry);
+        tx.oncomplete = () => {
+          document.getElementById("amount").value = "";
+          setDefaultDateTime();
+          renderHistory();
+        };
+      }
+
+      function renderHistory() {
+        const fromDate = document.getElementById("fromDate").value;
+        const toDate = document.getElementById("toDate").value;
+
+        const tx = db.transaction(["entries"], "readonly");
+        const store = tx.objectStore("entries");
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+          const data = request.result;
+
+          const filtered = data
+            .filter((entry) => {
+              const entryDate = entry.date.split("T")[0];
+              if (fromDate && entryDate < fromDate) return false;
+              if (toDate && entryDate > toDate) return false;
+              return true;
+            })
+            .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+          const cash = filtered
+            .filter((e) => e.type === "Cash")
+            .reduce((sum, e) => sum + e.amount, 0);
+
+          const online = filtered
+            .filter((e) => e.type === "Online")
+            .reduce((sum, e) => sum + e.amount, 0);
+
+          document.getElementById("summary").innerHTML = `
+      <p><strong>From:</strong> ${fromDate || "N/A"} <strong>To:</strong> ${
+            toDate || "N/A"
+          }</p>
+      <p>Cash Total: ₹${cash.toFixed(2)}</p>
+      <p>Online Total: ₹${online.toFixed(2)}</p>
+      <p><strong>Total:</strong> ₹${(cash + online).toFixed(2)}</p>
+    `;
+
+          const list = document.getElementById("historyList");
+          list.innerHTML = "";
+          filtered.forEach((entry) => {
+            const div = document.createElement("div");
+            div.className = "history-entry";
+            div.innerHTML = `
+        <div class="entry-details">
+          <div><strong>${entry.type}</strong> - ₹${entry.amount.toFixed(
+              2
+            )}</div>
+          <small>${new Date(entry.date).toLocaleString()}</small>
+        </div>
+        <div class="entry-actions">
+          <button class="edit" onclick="editEntry(${entry.id})">✏️</button>
+          <button onclick="deleteEntry(${entry.id})">❌</button>
+        </div>
+      `;
+            list.appendChild(div);
+          });
+
+          window.filteredEntries = filtered;
+        };
+      }
+
+      function deleteEntry(id) {
+        const tx = db.transaction(["entries"], "readwrite");
+        const store = tx.objectStore("entries");
+        store.delete(id);
+        tx.oncomplete = renderHistory;
+      }
+
+      function editEntry(id) {
+        const tx = db.transaction(["entries"], "readonly");
+        const store = tx.objectStore("entries");
+        const getReq = store.get(id);
+        getReq.onsuccess = () => {
+          const entry = getReq.result;
+          if (!entry) {
+            showModal("Entry not found.");
+            return;
+          }
+          showModal("Edit amount:", "Edit Entry", {
+            edit: true,
+            amount: entry.amount,
+            id: id,
+          });
+        };
+      }
+
+      function updateEntry(id, newAmount) {
+        const tx = db.transaction(["entries"], "readwrite");
+        const store = tx.objectStore("entries");
+        const getReq = store.get(id);
+
+        getReq.onsuccess = () => {
+          const entry = getReq.result;
+          if (!entry) {
+            showModal("Entry not found.");
+            return;
+          }
+          entry.amount = newAmount;
+          store.put(entry);
+          tx.oncomplete = () => {
+            renderHistory();
+            showModal("Entry updated successfully.");
+          };
+        };
+      }
+
+      function importData() {
+        const fileInput = document.getElementById("importFile");
+        const file = fileInput.files[0];
+        if (!file) {
+          showModal("Please select a CSV file to import.");
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const text = e.target.result;
+          const lines = text.trim().split("\n");
+
+          if (
+            !lines[0].toLowerCase().includes("date") ||
+            !lines[0].toLowerCase().includes("type") ||
+            !lines[0].toLowerCase().includes("amount")
+          ) {
+            showModal(
+              "CSV header must contain Date, Type, and Amount columns."
+            );
+            return;
+          }
+
+          const entriesToAdd = [];
+
+          for (let i = 1; i < lines.length; i++) {
+            const line = lines[i].trim();
+            if (!line) continue;
+            const cols = line.match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g);
+            if (!cols || cols.length < 3) {
+              showModal(`Invalid data format on line ${i + 1}`);
+              return;
+            }
+
+            let [dateStr, type, amountStr] = cols;
+            dateStr = dateStr.replace(/^"|"$/g, "");
+            type = type.trim();
+            amountStr = amountStr.trim();
+
+            const amount = parseFloat(amountStr);
+            if (
+              !dateStr ||
+              (type !== "Cash" && type !== "Online") ||
+              isNaN(amount) ||
+              amount <= 0
+            ) {
+              showModal(`Invalid data on line ${i + 1}`);
+              return;
+            }
+
+            let date = new Date(dateStr);
+            if (isNaN(date.getTime())) {
+              showModal(`Invalid date on line ${i + 1}`);
+              return;
+            }
+            date = date.toISOString();
+
+            entriesToAdd.push({ date, type, amount });
+          }
+
+          const tx = db.transaction(["entries"], "readwrite");
+          const store = tx.objectStore("entries");
+
+          entriesToAdd.forEach((entry) => store.add(entry));
+
+          tx.oncomplete = () => {
+            showModal(`Imported ${entriesToAdd.length} entries successfully.`);
+            renderHistory();
+            fileInput.value = "";
+          };
+
+          tx.onerror = () => {
+            showModal("Error importing data.");
+          };
+        };
+
+        reader.onerror = () => {
+          showModal("Error reading file.");
+        };
+
+        reader.readAsText(file);
+      }
+
+      function exportData() {
+        const data = window.filteredEntries || [];
+
+        if (data.length === 0) {
+          showModal("No data to export.");
+          return;
+        }
+
+        let csv = "Date,Type,Amount\n";
+        data.forEach((entry) => {
+          const date = new Date(entry.date).toLocaleString();
+          csv += `"${date}",${entry.type},${entry.amount}\n`;
+        });
+
+        const today = new Date().toISOString().split("T")[0];
+        const filename = `collection_${today}.csv`;
+
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+    </script>
+  </body>
+</html>
