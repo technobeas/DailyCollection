@@ -20,9 +20,11 @@
         --radius: 10px;
         --transition: 0.25s ease;
       }
+
       * {
         box-sizing: border-box;
       }
+
       body {
         margin: 0;
         font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
@@ -34,6 +36,7 @@
         padding: 2rem 1rem;
         min-height: 100vh;
       }
+
       h1 {
         margin-bottom: 1.5rem;
         font-size: 2.2rem;
@@ -42,6 +45,7 @@
         color: var(--primary);
         user-select: none;
       }
+
       .container {
         width: 100%;
         max-width: 540px;
@@ -51,6 +55,7 @@
         box-shadow: 0 6px 15px var(--shadow);
         transition: var(--transition);
       }
+
       input[type="number"],
       input[type="date"],
       input[type="datetime-local"],
@@ -63,17 +68,22 @@
         font-size: 1.05rem;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
         outline-offset: 2px;
+        background-color: #fff;
       }
+
       input:focus {
         border-color: var(--primary);
         outline: none;
         box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.2);
       }
+
       .buttons {
         display: flex;
+        flex-wrap: wrap;
         gap: 1rem;
         margin-bottom: 1.75rem;
       }
+
       .btn {
         flex: 1;
         padding: 0.75rem 0;
@@ -88,23 +98,29 @@
           box-shadow var(--transition), transform 0.1s ease;
         user-select: none;
       }
+
       .btn:active {
         transform: translateY(1px);
       }
+
       .btn.cash {
         background-color: var(--success);
       }
+
       .btn.cash:hover {
         background-color: #157347;
         box-shadow: 0 6px 15px rgba(21, 115, 71, 0.3);
       }
+
       .btn.online {
         background-color: var(--primary);
       }
+
       .btn.online:hover {
         background-color: var(--primary-dark);
         box-shadow: 0 6px 15px rgba(8, 71, 193, 0.35);
       }
+
       .filters {
         margin-top: 1rem;
         display: flex;
@@ -115,33 +131,42 @@
         color: var(--gray-dark);
         user-select: none;
       }
+
       .filters label {
         flex-basis: 100%;
         margin-bottom: 0.3rem;
         font-size: 1rem;
       }
+
       .filters input[type="date"] {
         flex: 1 1 45%;
       }
+
       .summary {
-        margin-top: 2rem;
-        font-size: 1.05rem;
+        margin-top: 1.5rem;
+        font-size: 1rem;
         line-height: 1.6;
         color: var(--gray-dark);
         user-select: none;
       }
+
       .summary p {
         margin: 0.25rem 0;
       }
+
       .history {
         margin-top: 2rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
       }
+
       .history h3 {
         font-weight: 700;
         margin-bottom: 1rem;
         color: var(--primary);
         user-select: none;
       }
+
       .history-entry {
         border: 1.5px solid var(--border);
         border-radius: var(--radius);
@@ -152,26 +177,40 @@
         justify-content: space-between;
         align-items: center;
         transition: box-shadow 0.2s ease, transform 0.15s ease;
+        flex-wrap: wrap;
+        gap: 0.5rem;
       }
+
       .history-entry:hover {
         box-shadow: 0 4px 12px rgba(13, 110, 253, 0.15);
         transform: translateY(-1px);
       }
+
       .entry-details {
         flex-grow: 1;
+        min-width: 60%;
         user-select: text;
       }
+
       .entry-details > div {
         font-weight: 600;
-        font-size: 1.1rem;
+        font-size: 1.05rem;
         color: var(--text);
       }
+
       .entry-details small {
         color: var(--gray-light);
         font-size: 0.85rem;
       }
+
+      .entry-actions {
+        display: flex;
+        gap: 0.75rem;
+        justify-content: flex-end;
+        flex-grow: 1;
+      }
+
       .entry-actions button {
-        margin-left: 0.6rem;
         border: none;
         background: transparent;
         cursor: pointer;
@@ -181,18 +220,23 @@
         transition: background-color var(--transition);
         user-select: none;
       }
+
       .entry-actions button.edit {
         color: var(--primary);
       }
+
       .entry-actions button.edit:hover {
         background-color: #cfe2ff;
       }
+
       .entry-actions button.delete {
         color: var(--danger);
       }
+
       .entry-actions button.delete:hover {
         background-color: #f8d7da;
       }
+
       button.export {
         background: #6c757d;
         margin-top: 2rem;
@@ -206,10 +250,12 @@
           box-shadow var(--transition);
         color: white;
       }
+
       button.export:hover {
         background-color: #5a6268;
         box-shadow: 0 6px 15px rgba(90, 98, 104, 0.6);
       }
+
       .modal {
         position: fixed;
         top: 0;
@@ -223,9 +269,11 @@
         z-index: 9999;
         transition: opacity 0.3s ease;
       }
+
       .modal.hidden {
         display: none;
       }
+
       .modal-content {
         background: white;
         padding: 2rem;
@@ -235,16 +283,19 @@
         box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
         text-align: center;
       }
+
       .modal-content h2 {
         margin-top: 0;
         margin-bottom: 0.5rem;
         color: var(--primary);
       }
+
       .modal-content p {
         margin: 1rem 0 1.5rem 0;
         color: var(--text);
         font-size: 1.05rem;
       }
+
       #modalAmountInput {
         display: none;
         width: 100%;
@@ -254,6 +305,7 @@
         border: 1.5px solid var(--border);
         font-size: 1.05rem;
       }
+
       #modalCloseBtn {
         background-color: var(--primary);
         color: white;
@@ -266,19 +318,70 @@
         box-shadow: 0 3px 7px rgba(13, 110, 253, 0.35);
         transition: background-color var(--transition);
       }
+
       #modalCloseBtn:hover {
         background-color: var(--primary-dark);
       }
+
       @media (max-width: 480px) {
         .buttons {
           flex-direction: column;
         }
+
         .btn {
           width: 100%;
           flex: none;
         }
+
         .filters input[type="date"] {
           flex-basis: 100%;
+        }
+
+        .entry-details {
+          min-width: 100%;
+          margin-bottom: 0.5rem;
+        }
+
+        .entry-actions {
+          flex-grow: 0;
+          justify-content: flex-start;
+        }
+      }
+
+      @media (max-width: 360px) {
+        body {
+          padding: 1rem 0.5rem;
+        }
+
+        .container {
+          padding: 1rem 1rem;
+        }
+
+        h1 {
+          font-size: 1.8rem;
+        }
+
+        .btn {
+          font-size: 1rem;
+          padding: 0.65rem 0;
+        }
+
+        .filters label {
+          font-size: 0.9rem;
+        }
+
+        .summary {
+          font-size: 0.9rem;
+        }
+
+        .modal-content {
+          padding: 1.25rem 1rem;
+          max-width: 320px;
+        }
+
+        button.export {
+          font-size: 1rem;
+          padding: 0.7rem 0;
         }
       }
     </style>
