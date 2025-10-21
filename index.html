@@ -591,6 +591,18 @@
       >
         Import CSV
       </button>
+      <button
+        class="btn delete"
+        onclick="resetAllData()"
+        style="
+          background-color: red;
+          color: white;
+          margin-top: 1rem;
+          padding: 6px;
+        "
+      >
+        Reset All Data
+      </button>
     </div>
     <div
       id="modal"
@@ -1135,6 +1147,29 @@
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
+      }
+      function resetAllData() {
+        showModal(
+          "Are you sure you want to delete ALL data?",
+          "Confirm Reset",
+          {
+            confirm: true,
+            onConfirm: () => {
+              const tx = db.transaction(["entries"], "readwrite");
+              const store = tx.objectStore("entries");
+              const clearRequest = store.clear();
+
+              clearRequest.onsuccess = () => {
+                renderHistory();
+                showModal("All data has been deleted.");
+              };
+
+              clearRequest.onerror = () => {
+                showModal("Error deleting data.");
+              };
+            },
+          }
+        );
       }
     </script>
   </body>
