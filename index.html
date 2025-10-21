@@ -648,6 +648,23 @@
         document.getElementById("customDate").value = localISOTime;
       }
 
+      function formatIndianNumber(x) {
+        // Convert to string
+        x = x.toFixed(2);
+        let afterPoint = "";
+        if (x.indexOf(".") > 0)
+          afterPoint = x.substring(x.indexOf("."), x.length);
+        let num = Math.floor(x).toString();
+        let lastThree = num.substring(num.length - 3);
+        let otherNumbers = num.substring(0, num.length - 3);
+        if (otherNumbers !== "") lastThree = "," + lastThree;
+        let res =
+          otherNumbers.replace(/\B(?=(\d{2})+(?!\d))/g, ",") +
+          lastThree +
+          afterPoint;
+        return res;
+      }
+
       function openDB() {
         const request = indexedDB.open(DB_NAME, DB_VERSION);
         request.onerror = (e) => showModal("Database error");
@@ -705,19 +722,15 @@
           const online = filtered
             .filter((e) => e.type === "Online")
             .reduce((sum, e) => sum + e.amount, 0);
-          document.getElementById(
-            "summary"
-          ).innerHTML = ` <p><strong>From:</strong> ${
-            fromDate || "N/A"
-          } <strong>To:</strong> ${
+          document.getElementById("summary").innerHTML = `
+  <p><strong>From:</strong> ${fromDate || "N/A"} <strong>To:</strong> ${
             toDate || "N/A"
-          }</p> <p>Cash Total: ₹${cash.toFixed(
-            2
-          )}</p> <p>Online Total: ₹${online.toFixed(
-            2
-          )}</p> <p><strong>Total:</strong> ₹${(cash + online).toFixed(
-            2
-          )}</p> `;
+          }</p>
+  <p>Cash Total: ₹${formatIndianNumber(cash)}</p>
+  <p>Online Total: ₹${formatIndianNumber(online)}</p>
+  <p><strong>Total:</strong> ₹${formatIndianNumber(cash + online)}</p>
+`;
+
           const list = document.getElementById("historyList");
           list.innerHTML = "";
           filtered.forEach((entry) => {
