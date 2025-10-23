@@ -749,26 +749,6 @@
         setDefaultDateTime();
         setInterval(updateCustomDateTime, 1000);
       };
-
-      function formatDateDMY(date) {
-        if (!(date instanceof Date)) date = new Date(date);
-        const pad = (n) => n.toString().padStart(2, "0");
-
-        const day = pad(date.getDate());
-        const month = pad(date.getMonth() + 1);
-        const year = date.getFullYear();
-
-        let hours = date.getHours();
-        const minutes = pad(date.getMinutes());
-        const seconds = pad(date.getSeconds());
-
-        const ampm = hours >= 12 ? "PM" : "AM";
-        hours = hours % 12 || 12;
-        hours = pad(hours);
-
-        return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds} ${ampm}`;
-      }
-
       function setDefaultFilterDates() {
         const today = new Date();
         const year = today.getFullYear();
@@ -848,12 +828,6 @@
           renderHistory();
         };
       }
-      function formatDateYMDtoDMY(ymd) {
-        if (!ymd) return "N/A";
-        const [year, month, day] = ymd.split("-");
-        return `${day}/${month}/${year}`;
-      }
-
       function renderHistory() {
         const fromDate = document.getElementById("fromDate").value;
         const toDate = document.getElementById("toDate").value;
@@ -880,9 +854,9 @@
             .filter((e) => e.type === "Online")
             .reduce((sum, e) => sum + e.amount, 0);
           document.getElementById("summary").innerHTML = `
-  <p><strong>From:</strong> ${formatDateYMDtoDMY(
-    fromDate
-  )} <strong>To:</strong> ${formatDateYMDtoDMY(toDate)}</p>
+  <p><strong>From:</strong> ${fromDate || "N/A"} <strong>To:</strong> ${
+            toDate || "N/A"
+          }</p>
   <p>Cash Total: ₹${formatIndianNumber(cash)}</p>
   <p>Online Total: ₹${formatIndianNumber(online)}</p>
   <p><strong>Total:</strong> ₹${formatIndianNumber(cash + online)}</p>
@@ -893,49 +867,19 @@
           filtered.forEach((entry) => {
             const div = document.createElement("div");
             div.className = "history-entry";
-            div.innerHTML = `
-        <div class="entry-details">
-          <div><strong>${entry.type}</strong> - ₹${entry.amount.toFixed(
-              2
-            )}</div>
-          <small>${formatDateDMY(entry.date)}</small>
-        </div>
-        <div class="entry-actions">
-          <button class="edit" onclick="editEntry(${entry.id})">✏️</button>
-          <button onclick="confirmDelete(${entry.id})">❌</button>
-        </div>`;
+            div.innerHTML = ` <div class="entry-details"> <div><strong>${
+              entry.type
+            }</strong> - ₹${entry.amount.toFixed(2)}</div> <small>${new Date(
+              entry.date
+            ).toLocaleString()}</small> </div> <div class="entry-actions"> <button class="edit" onclick="editEntry(${
+              entry.id
+            })">✏️</button> <button onclick="confirmDelete(${
+              entry.id
+            })">❌</button>`;
             list.appendChild(div);
           });
           window.filteredEntries = filtered;
         };
-      }
-
-      function exportData() {
-        const data = window.filteredEntries || [];
-        if (data.length === 0) {
-          showModal("No data to export.");
-          return;
-        }
-
-        let csv = "Date,Type,Amount\n";
-        data.forEach((entry) => {
-          const date = formatDateDMY(entry.date);
-          csv += `"${date}",${entry.type},${entry.amount}\n`;
-        });
-
-        const fromDate = document.getElementById("fromDate").value || "start";
-        const toDate = document.getElementById("toDate").value || "end";
-
-        const filename = `collection_${fromDate}_to_${toDate}.csv`;
-
-        const blob = new Blob([csv], { type: "text/csv" });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
       }
 
       function confirmDelete(id) {
@@ -1181,6 +1125,36 @@
         reader.readAsText(file);
       }
 
+      function exportData() {
+        const data = window.filteredEntries || [];
+        if (data.length === 0) {
+          showModal("No data to export.");
+          return;
+        }
+
+        let csv = "Date,Type,Amount\n";
+        data.forEach((entry) => {
+          const date = new Date(entry.date).toLocaleString();
+          csv += `"${date}",${entry.type},${entry.amount}\n`;
+        });
+
+        // Get the selected date range
+        const fromDate = document.getElementById("fromDate").value || "start";
+        const toDate = document.getElementById("toDate").value || "end";
+
+        // Construct filename using date range
+        const filename = `collection_${fromDate}_to_${toDate}.csv`;
+
+        // Create and trigger CSV download
+        const blob = new Blob([csv], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
       function resetAllData() {
         showModal(
           "Are you sure you want to delete ALL data?",
